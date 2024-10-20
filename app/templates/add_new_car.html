@@ -1,0 +1,32 @@
+{% extends "base.html"%}
+
+{% block content %}
+
+<div>
+    <form method="POST" action="{{url_for('main.add_new_car')}}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+        {{form.car.label}}
+        {{form.car(class="form-control")}}
+
+        {{form.brand.label}}
+        {{form.brand(class="form-control")}}
+
+        {{form.price.label}}
+        {{form.price(class="form-control")}}
+
+        {{form.body.label}}
+        {{form.body(class="form-control")}}
+
+        {{form.image.label}}
+        {{form.image(class="form-control")}}
+
+        {{form.submit.label}}
+        {{form.submit(class="form-control")}}
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}

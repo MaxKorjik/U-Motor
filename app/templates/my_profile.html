@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}
+Профиль пользователя
+{% endblock %}
+
+{% block content %}
+<div class="profile__wrapper">
+    <div class="profile-container">
+        <!-- Блок с информацией о пользователе -->
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename='/photos/users/' + user.user_photo) }}" alt="{{ user.user_name }}" class="avatar">
+            <div class="user-info">
+                <h1>{{ user.user_name }}</h1>
+                <p>Телефон: {{ user.user_phone }}</p>
+                <p>Email: {{ user.user_email }}</p>
+            </div>
+        </div>
+    </div>
+    <!-- История заказов -->
+    <div class="order-history">
+        <h2>Історія замовлень</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Машина</th>
+                <th>Дата</th>
+                <th>Час</th>
+                <th>Ціна</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in user.orders %}
+            <tr>
+                <td>{{ order.car.brand }} {{ order.car.car }}</td>
+                <td>{{ order.start_date.strftime('%d.%m.%Y') }} - {{ order.stop_date.strftime('%d.%m.%Y') }}</td>
+                <td>{{ order.start_date.strftime('%H:%M') }} - {{ order.stop_date.strftime('%H:%M') }}</td>
+                <td>{{ order.total_price }} грн.</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

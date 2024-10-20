@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}
+Створення замовлення
+{% endblock %}
+
+{% block content %}
+<div class="order-container">
+    <h1 class="text-center title">Створити замовлення</h1>
+    
+    <form action="{{ url_for('main.create_order', car_id=car.id) }}" method="POST">
+        <!-- CSRF-токен -->
+        {{ form.hidden_tag() }}
+
+        <div class="order-car-container">
+            <div class="order-car-column-title">
+                <div class="order-car-container-img">
+                    <div class="container-fluid" style="padding-left: 0px;">
+                        <img src="{{ url_for('static', filename='photos/cars/' + car.image) }}" class="card-img-top" alt="{{ car.car }}">
+                    </div>
+                </div>
+                <div class="order-car-container-text">
+                    <p class="car-text">Машина: {{ car.car }}</p>
+                    <p class="car-text">Марка: {{ car.brand }}</p>
+                    <p class="car-text">Тип: {{ car.body }}</p>
+                    <p class="car-text" id="price">Ціна: {{ car.price }} грн/год</p>
+                    <p class="car-text" id="total-price">Всього до сплати: 0 грн</p>
+                </div>
+            </div>
+            
+            <div class="order-car-column-form">
+                <div class="date">
+                    {% if not current_user.is_authenticated %}
+                        <!-- Добавляем поле для телефона, если пользователь не авторизован -->
+                        {{ form.user_phone.label }} {{ form.user_phone(id="user_phone", placeholder="ХХХ-XXX-XX-XX") }}
+                    {% endif %}
+                    
+                    <!-- Поля для выбора даты и времени -->
+                    {{ form.start_date.label }} {{ form.start_date(class="custom-date-picker", id='start-date') }}
+                    {{ form.start_time.label }} {{ form.start_time(class="custom-time-picker", id='start-time') }}
+                    {{ form.stop_date.label }} {{ form.stop_date(class="custom-date-picker", id='stop-date') }}
+                    {{ form.stop_time.label }} {{ form.stop_time(class="custom-time-picker", id='stop-time') }}
+
+                </div>
+
+                <!-- Скрытое поле для хранения общей цены -->
+                {{ form.total_price(id='total_price') }}
+
+                <div class="buttons">
+                    <!-- Кнопка для расчета цены -->
+                    <button type="button" class="submit__button" id="button_price" onclick="calculatePrice()">Розрахувати ціну</button>
+
+                    <!-- Кнопка для отправки формы -->
+                    {{ form.submit(class="submit__button hide", id="button_submit") }}
+                </div>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    // Проверяем, существует ли поле телефона
+    const phoneInput = document.getElementById('user_phone');
+    
+    if (phoneInput) {
+      // Форматирование ввода с дефисами
+      phoneInput.addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+        e.target.value = (x[1] ? x[1] : '') + (x[2] ? '-' + x[2] : '') + (x[3] ? '-' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+      });
+    }
+</script>
+
+<!-- Инициализация Flatpickr для выбора даты -->
+<script>
+    flatpickr(".custom-date-picker", {
+        dateFormat: "Y-m-d",
+        locale: "ru"
+    });
+</script>
+
+<!-- Инициализация jQuery Timepicker с поддержкой прокрутки -->
+<script>
+    $(document).ready(function(){
+        $('.custom-time-picker').timepicker({
+            timeFormat: 'H:i',  // 24-часовой формат
+            interval: 15,  // Шаг изменения минут
+            minTime: '0',  // Начальное время
+            maxTime: '23:59',  // Конечное время
+            startTime: '00:00',  // Начало отсчета
+            dynamic: true,  // Адаптивный интерфейс
+            dropdown: true,  // Выпадающий список времени
+            scrollbar: true  // Прокрутка для выбора времени
+        });
+    });
+</script>
+
+<!-- Скрипт для расчета цены -->
+<script>
+    function calculatePrice() {
+        const btnPrice = document.getElementById('button_price'); // Кнопка "Рассчитать цену"
+        const btnSubmit = document.getElementById('button_submit'); // Кнопка "Создать заказ"
+    
+        const startDate = new Date(`${document.getElementById("start-date").value}T${document.getElementById("start-time").value}`);
+        const stopDate = new Date(`${document.getElementById("stop-date").value}T${document.getElementById("stop-time").value}`);
+        
+        if (isNaN(startDate) || isNaN(stopDate)) {
+            alert("Пожалуйста, введите корректные даты и время.");
+            return false;
+        }
+    
+        if (startDate >= stopDate) {
+            alert("Дата и время окончания должны быть позже даты и времени начала.");
+            return false;
+        }
+    
+        // Расчет разницы во времени в часах
+        const hours = Math.ceil((stopDate - startDate) / (1000 * 60 * 60)); // Разница в часах
+        const pricePerHour = {{ car.price }}; // Цена за час
+        const totalPrice = hours * pricePerHour; // Общая цена
+    
+        // Обновление отображаемой общей цены
+        document.getElementById("total-price").innerText = `Итого: ${totalPrice} грн`;
+    
+        // Обновление значения в поле формы total_price
+        document.getElementById("total_price").value = totalPrice;
+    
+        // Скрываем кнопку "Рассчитать цену"
+        btnPrice.classList.add('hide');
+    
+        // Показываем кнопку для отправки формы "Создать заказ"
+        btnSubmit.classList.remove('hide');
+    }
+</script>
+
+{% endblock %}

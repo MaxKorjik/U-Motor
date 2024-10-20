@@ -1,0 +1,20 @@
+{% extends "base.html"%}
+
+{% block content %}
+{%for car in cars%}
+<div class="container-fluid">
+    <div class="container-fluid" style="padding-left: 0px;">
+        <img src="{{ url_for('static', filename='photos/cars/' + car.image) }}" class="card-img-top" alt="{{ car.car }}">
+    </div>
+    <div class="container-fluid" >
+        <p class="car-text">{{ car.brand }}</p>
+        <p class="car-text">{{ car.body }}</p>
+        <p class="car-text">{{ car.price }} грн/год</p>
+        <a href="{{url_for('main.delete', car_id=car.id)}}">
+            <button>Delete</button>
+        </a>
+    </div>
+</div>
+</div>
+{%endfor%}
+{% endblock %}
