@@ -19,6 +19,10 @@ header {
     background-color: #1E2122;
 }
 
+.logo-img {
+    width: 100px;
+    height: 100px;
+}
 
 main {
     flex: 1 0 auto;
